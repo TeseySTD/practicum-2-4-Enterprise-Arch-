@@ -19,6 +19,6 @@ public record OrderItemResponse(
 
 public record CreateOrderRequest(int CustomerId, DateOnly OrderDate, List<CreateOrderItemRequest> Items);
 
-public record CreateOrderItemRequest(int ProductId, string ProductName, int Quantity, decimal UnitPrice);
+public record CreateOrderItemRequest(int ProductId, int Quantity);
 
-public record AddOrderItemRequest(int ProductId, string ProductName, int Quantity, decimal UnitPrice);
+public record AddOrderItemRequest(int ProductId, int Quantity);

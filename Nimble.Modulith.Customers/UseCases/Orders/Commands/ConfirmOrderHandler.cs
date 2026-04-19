@@ -2,28 +2,18 @@
 using Mediator;
 using Nimble.Modulith.Customers.Domain.Interfaces;
 using Nimble.Modulith.Customers.Domain.OrderAggregate;
-using Nimble.Modulith.Customers.Domain.OrderAggregate.Specifications;
-using Nimble.Modulith.Products;
-using Nimble.Modulith.Products.Contracts;
 
 namespace Nimble.Modulith.Customers.UseCases.Orders.Commands;
 
-public class AddOrderItemHandler(IRepository<Order> repository, IMediator mediator)
-    : ICommandHandler<AddOrderItemCommand, Result<OrderDto>>
+public class ConfirmOrderHandler(IRepository<Order> repository) : ICommandHandler<ConfirmOrderCommand, Result<OrderDto>>
 {
-    public async ValueTask<Result<OrderDto>> Handle(AddOrderItemCommand command, CancellationToken ct)
+    public async ValueTask<Result<OrderDto>> Handle(ConfirmOrderCommand command, CancellationToken ct)
     {
         var order = await repository.GetByIdAsync(command.OrderId, ct);
         if (order is null) return Result<OrderDto>.NotFound();
 
-        var productDetails = await mediator.Send(new GetProductDetailsQuery(command.ProductId), ct);
-        order.AddItem(new OrderItem
-        {
-            ProductId = command.ProductId, ProductName = productDetails.Name, Quantity = command.Quantity,
-            UnitPrice = productDetails.Price
-        });
+        order.Status = OrderStatus.Processing;
         order.UpdatedAt = DateTime.UtcNow;
-
         await repository.UpdateAsync(order, ct);
         await repository.SaveChangesAsync(ct);
 

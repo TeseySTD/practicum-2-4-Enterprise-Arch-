@@ -27,7 +27,7 @@ public class Create(IMediator mediator, ICustomerAuthorizationService auth)
         var result = await mediator.Send(command, ct);
         if (!result.IsSuccess)
         {
-            await Send.NotFoundAsync(ct);
+            await HttpContext.Response.SendAsync(result.Errors, 400, cancellation: ct);
             return;
         }
 

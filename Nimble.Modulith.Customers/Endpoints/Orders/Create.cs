@@ -26,7 +26,7 @@ public class Create(IMediator mediator, ICustomerAuthorizationService auth)
         }
 
         var command = new CreateOrderCommand(req.CustomerId, req.OrderDate,
-            req.Items.Select(i => new CreateOrderItemDto(i.ProductId, i.ProductName, i.Quantity, i.UnitPrice))
+            req.Items.Select(i => new CreateOrderItemDto(i.ProductId, i.Quantity))
                 .ToList());
         var result = await mediator.Send(command, ct);
         if (!result.IsSuccess)
