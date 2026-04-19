@@ -1,15 +1,15 @@
 ﻿using FastEndpoints;
 using Mediator;
+using Nimble.Modulith.Customers.Infrastructure;
 using Nimble.Modulith.Customers.UseCases.Customers.Queries;
 
 namespace Nimble.Modulith.Customers.Endpoints.Customers;
 
-public class GetById(IMediator mediator) : EndpointWithoutRequest<CustomerResponse>
+public class GetById(IMediator mediator, ICustomerAuthorizationService auth) : EndpointWithoutRequest<CustomerResponse>
 {
     public override void Configure()
     {
         Get("/customers/{id}");
-        AllowAnonymous();
         Tags("customers");
     }
 
@@ -21,6 +21,13 @@ public class GetById(IMediator mediator) : EndpointWithoutRequest<CustomerRespon
         if (!result.IsSuccess)
         {
             await Send.NotFoundAsync(ct);
+            return;
+        }
+
+        if (!auth.IsAdminOrOwner(User, result.Value.Email))
+        {
+            AddError("Access Denied");
+            await Send.ForbiddenAsync(ct);
             return;
         }
 

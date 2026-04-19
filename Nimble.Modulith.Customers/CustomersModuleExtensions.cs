@@ -15,6 +15,8 @@ public static class CustomersModuleExtensions
         builder.AddSqlServerDbContext<CustomersDbContext>("customersdb");
         builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
         builder.Services.AddScoped(typeof(IReadRepository<>), typeof(EfReadRepository<>));
+        builder.Services.AddScoped<Infrastructure.ICustomerAuthorizationService,
+                Infrastructure.CustomerAuthorizationService>();
         return builder;
     }
 

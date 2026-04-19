@@ -9,8 +9,8 @@ public class ListByDate(IMediator mediator) : EndpointWithoutRequest<List<OrderR
     public override void Configure()
     {
         Get("/orders/by-date/{date}");
-        AllowAnonymous();
         Tags("orders");
+        Roles("Admin");
     }
 
     public override async Task HandleAsync(CancellationToken ct)

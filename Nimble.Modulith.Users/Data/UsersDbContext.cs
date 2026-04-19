@@ -10,4 +10,11 @@ public class UsersDbContext : IdentityDbContext<IdentityUser>
         : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        builder.HasDefaultSchema("Users");
+        builder.ApplyConfigurationsFromAssembly(typeof(UsersDbContext).Assembly);
+    }
 }

@@ -9,8 +9,8 @@ public class List(IMediator mediator) : EndpointWithoutRequest<List<CustomerResp
     public override void Configure()
     {
         Get("/customers");
-        AllowAnonymous();
         Tags("customers");
+        Roles("Admin");
     }
 
     public override async Task HandleAsync(CancellationToken ct)

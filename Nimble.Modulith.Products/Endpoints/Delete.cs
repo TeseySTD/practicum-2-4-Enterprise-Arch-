@@ -8,7 +8,7 @@ public class DeleteProductRequest { public int Id { get; set; } }
 
 public class Delete(ProductsDbContext dbContext) : Endpoint<DeleteProductRequest>
 {
-    public override void Configure() { Delete("/products/{id}"); Tags("products"); }
+    public override void Configure() { Delete("/products/{id}"); Tags("products"); Roles("Admin");}
     public override async Task HandleAsync(DeleteProductRequest req, CancellationToken ct)
     {
         var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == req.Id, ct);

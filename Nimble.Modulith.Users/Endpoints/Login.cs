@@ -1,16 +1,15 @@
 ﻿using FastEndpoints;
+using FastEndpoints.Security;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace Nimble.Modulith.Users.Endpoints;
 
 public class LoginRequest
 {
-    [Required, EmailAddress]
-    public string Email { get; set; } = string.Empty;
-    
-    [Required]
-    public string Password { get; set; } = string.Empty;
+    [Required, EmailAddress] public string Email { get; set; } = string.Empty;
+    [Required] public string Password { get; set; } = string.Empty;
 }
 
 public class LoginResponse
@@ -20,27 +19,33 @@ public class LoginResponse
     public string? Token { get; set; }
 }
 
-public class Login(SignInManager<IdentityUser> signInManager) : Endpoint<LoginRequest, LoginResponse>
+public class Login(UserManager<IdentityUser> userManager) : Endpoint<LoginRequest, LoginResponse>
 {
-    private readonly SignInManager<IdentityUser> _signInManager = signInManager;
-
     public override void Configure()
     {
         Post("/login");
         AllowAnonymous();
-        Summary(s => {
-            s.Summary = "Login with email and password";
-        });
     }
 
     public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
-    {       
-        var result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, false);
-        
-        if (result.Succeeded)
+    {
+        var user = await userManager.FindByEmailAsync(req.Email);
+
+        if (user != null && await userManager.CheckPasswordAsync(user, req.Password))
         {
-            Response = new LoginResponse { Success = true, Message = "Login successful", Token = "TODO: Generate JWT token" };
-            await Send.OkAsync(Response, ct);
+            var roles = await userManager.GetRolesAsync(user);
+
+            var jwtToken = JwtBearer.CreateToken(o =>
+            {
+                o.SigningKey = Config["Auth:JwtSecret"]!;
+                o.ExpireAt = DateTime.UtcNow.AddDays(7);
+                o.User.Roles.AddRange(roles);
+                o.User.Claims.Add((ClaimTypes.Email, user.Email!));
+                o.User.Claims.Add((ClaimTypes.Name, user.Email!));
+            });
+
+            await Send.OkAsync(new LoginResponse { Success = true, Message = "Login successful", Token = jwtToken },
+                ct);
         }
         else
         {

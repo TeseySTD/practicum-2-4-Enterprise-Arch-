@@ -18,7 +18,7 @@ public static class UsersModuleExtensions
         builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
         builder.Services.AddAuthorizationBuilder();
 
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+        builder.Services.AddIdentityCore<IdentityUser>(options =>
         {
             options.Password.RequiredLength = 6;
             options.Password.RequireNonAlphanumeric = false;
@@ -27,9 +27,10 @@ public static class UsersModuleExtensions
             options.Password.RequireLowercase = false;
             options.User.RequireUniqueEmail = true;
         })
+        .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<UsersDbContext>()
         .AddDefaultTokenProviders();
-
+        
         logger.Information("{Module} module services registered", nameof(UsersModuleExtensions).Replace("ModuleExtensions", ""));
 
         return builder;

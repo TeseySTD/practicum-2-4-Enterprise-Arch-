@@ -2,14 +2,15 @@ using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
 using Nimble.Modulith.Customers;
+using Nimble.Modulith.Email;
 using Nimble.Modulith.Products;
 using Nimble.Modulith.Users;
 using Serilog;
 
 var logger = Log.Logger = new LoggerConfiguration()
-  .Enrich.FromLogContext()
-  .WriteTo.Console()
-  .CreateLogger();
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
 
 logger.Information("Starting web host");
 
@@ -18,23 +19,18 @@ builder.Host.UseSerilog((_, config) => config.ReadFrom.Configuration(builder.Con
 
 builder.AddServiceDefaults();
 
-builder.Services.AddMediator(options =>
-{
-    options.ServiceLifetime = ServiceLifetime.Scoped;
-});
+builder.Services.AddMediator(options => { options.ServiceLifetime = ServiceLifetime.Scoped; });
 
-builder.Services.AddFastEndpoints()
-    .AddAuthenticationJwtBearer(s =>
-    {
-        s.SigningKey = builder.Configuration["Auth:JwtSecret"];
-    })
-    .AddAuthorization()
-    .SwaggerDocument();
 
 builder.AddUsersModuleServices(logger);
 builder.AddProductsModuleServices(logger);
 builder.AddCustomersModuleServices(logger);
+builder.AddEmailModuleServices(logger);
 
+builder.Services.AddFastEndpoints()
+    .AddAuthenticationJwtBearer(s => { s.SigningKey = builder.Configuration["Auth:JwtSecret"]; })
+    .AddAuthorization()
+    .SwaggerDocument();
 var app = builder.Build();
 
 app.UseAuthentication();

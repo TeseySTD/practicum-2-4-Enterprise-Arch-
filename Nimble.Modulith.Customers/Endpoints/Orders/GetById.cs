@@ -1,32 +1,40 @@
 ﻿using FastEndpoints;
 using Mediator;
+using Nimble.Modulith.Customers.Infrastructure;
+using Nimble.Modulith.Customers.UseCases.Customers.Queries;
 using Nimble.Modulith.Customers.UseCases.Orders.Queries;
 
 namespace Nimble.Modulith.Customers.Endpoints.Orders;
 
-public class GetById(IMediator mediator) : EndpointWithoutRequest<OrderResponse>
+public class GetById(IMediator mediator, ICustomerAuthorizationService auth) : EndpointWithoutRequest<OrderResponse>
 {
     public override void Configure()
     {
         Get("/orders/{id}");
-        AllowAnonymous();
         Tags("orders");
     }
 
     public override async Task HandleAsync(CancellationToken ct)
     {
         var id = Route<int>("id");
-        var query = new GetOrderByIdQuery(id);
-        var result = await mediator.Send(query, ct);
-        if (!result.IsSuccess)
+        var orderResult = await mediator.Send(new GetOrderByIdQuery(id), ct);
+        if (!orderResult.IsSuccess)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
-        Response = new OrderResponse(result.Value.Id, result.Value.CustomerId, result.Value.OrderNumber,
-            result.Value.OrderDate, result.Value.Status, result.Value.TotalAmount,
-            result.Value.Items.Select(i =>
+        var custResult = await mediator.Send(new GetCustomerByIdQuery(orderResult.Value.CustomerId), ct);
+        if (!custResult.IsSuccess || !auth.IsAdminOrOwner(User, custResult.Value.Email))
+        {
+            AddError("Access Denied");
+            await Send.ForbiddenAsync(ct);
+            return;
+        }
+
+        Response = new OrderResponse(orderResult.Value.Id, orderResult.Value.CustomerId, orderResult.Value.OrderNumber,
+            orderResult.Value.OrderDate, orderResult.Value.Status, orderResult.Value.TotalAmount,
+            orderResult.Value.Items.Select(i =>
                     new OrderItemResponse(i.Id, i.ProductId, i.ProductName, i.Quantity, i.UnitPrice, i.TotalPrice))
                 .ToList());
     }

@@ -1,21 +1,27 @@
 ﻿using FastEndpoints;
 using Mediator;
-using Nimble.Modulith.Customers.Endpoints.Orders;
+using Nimble.Modulith.Customers.Endpoints.Customers;
+using Nimble.Modulith.Customers.Infrastructure;
 using Nimble.Modulith.Customers.UseCases.Customers.Commands;
 
-namespace Nimble.Modulith.Customers.Endpoints.Customers;
-
-public class Create(IMediator mediator) : Endpoint<CreateCustomerRequest, CustomerResponse>
+public class Create(IMediator mediator, ICustomerAuthorizationService auth)
+    : Endpoint<CreateCustomerRequest, CustomerResponse>
 {
     public override void Configure()
     {
         Post("/customers");
-        AllowAnonymous();
         Tags("customers");
     }
 
     public override async Task HandleAsync(CreateCustomerRequest req, CancellationToken ct)
     {
+        if (!auth.IsAdminOrOwner(User, req.Email))
+        {
+            AddError("Access Denied");
+            await Send.ForbiddenAsync(ct);
+            return;
+        }
+
         var command = new CreateCustomerCommand(req.FirstName, req.LastName, req.Email, req.PhoneNumber,
             req.Address.Street, req.Address.City, req.Address.State, req.Address.PostalCode, req.Address.Country);
         var result = await mediator.Send(command, ct);

@@ -9,7 +9,6 @@ public class DeleteItem(IMediator mediator) : EndpointWithoutRequest<OrderRespon
     public override void Configure()
     {
         Delete("/orders/{id}/items/{itemId}");
-        AllowAnonymous();
         Tags("orders");
     }
 

@@ -9,10 +9,8 @@ public class LogoutResponse
     public bool Success { get; set; }
 }
 
-public class Logout(SignInManager<IdentityUser> signInManager) : EndpointWithoutRequest<LogoutResponse>
+public class Logout : EndpointWithoutRequest<LogoutResponse>
 {
-    private readonly SignInManager<IdentityUser> _signInManager = signInManager;
-
     public override void Configure()
     {
         Post("/logout");
@@ -22,8 +20,12 @@ public class Logout(SignInManager<IdentityUser> signInManager) : EndpointWithout
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await _signInManager.SignOutAsync();
-        Response = new LogoutResponse { Success = true, Message = "Logged out successfully" };
+        Response = new LogoutResponse
+        {
+            Success = true,
+            Message = "Logged out successfully (Client must delete the token)"
+        };
+
         await Send.OkAsync(Response, ct);
     }
 }
