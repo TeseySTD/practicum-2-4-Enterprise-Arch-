@@ -1,6 +1,29 @@
-@Nimble.Modulith.Web_HostAddress = http://localhost:5084
+@HostAddress = http://localhost:5084
 
-GET {{Nimble.Modulith.Web_HostAddress}}/weatherforecast/
-Accept: application/json
+### List Products
 
-###
+GET {{HostAddress}}/products
+
+### Create a Product (if logged in)
+POST {{HostAddress}}/products
+Content-Type: application/json
+{
+  "name": "Sample Product",
+  "description": "This is a sample product.",
+  "price": 19.99
+}
+
+### View a Product by ID
+GET {{HostAddress}}/products/1
+
+### Update a Product by ID (if logged in)
+PUT {{HostAddress}}/products/1
+Content-Type: application/json
+{
+  "name": "Updated Product",
+  "description": "This is an updated product description.",
+  "price": 24.99
+}
+
+### Delete a Product by ID (if logged in)
+DELETE {{HostAddress}}/products/1

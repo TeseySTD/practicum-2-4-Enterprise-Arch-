@@ -1,6 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using FastEndpoints.Swagger;
+using Nimble.Modulith.Products;
 using Nimble.Modulith.Users;
 using Serilog;
 
@@ -25,6 +26,7 @@ builder.Services.AddFastEndpoints()
     .SwaggerDocument();
 
 builder.AddUsersModuleServices(logger);
+builder.AddProductsModuleServices(logger);
 
 var app = builder.Build();
 
@@ -35,5 +37,6 @@ app.UseFastEndpoints()
     .UseSwaggerGen();
 
 await app.EnsureUsersModuleDatabaseAsync();
+await app.EnsureProductsModuleDatabaseAsync();
 
 app.Run();
