@@ -4,6 +4,7 @@ using FastEndpoints.Swagger;
 using Nimble.Modulith.Customers;
 using Nimble.Modulith.Email;
 using Nimble.Modulith.Products;
+using Nimble.Modulith.Reporting;
 using Nimble.Modulith.Users;
 using Serilog;
 
@@ -26,6 +27,7 @@ builder.AddUsersModuleServices(logger);
 builder.AddProductsModuleServices(logger);
 builder.AddCustomersModuleServices(logger);
 builder.AddEmailModuleServices(logger);
+builder.AddReportingModuleServices(logger);
 
 builder.Services.AddFastEndpoints()
     .AddAuthenticationJwtBearer(s => { s.SigningKey = builder.Configuration["Auth:JwtSecret"]; })
@@ -42,5 +44,6 @@ app.UseFastEndpoints()
 await app.EnsureUsersModuleDatabaseAsync();
 await app.EnsureProductsModuleDatabaseAsync();
 await app.EnsureCustomersModuleDatabaseAsync();
+await app.EnsureReportingModuleDatabaseAsync();
 
 app.Run();

@@ -40,7 +40,12 @@ public static class UsersModuleExtensions
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<UsersDbContext>();
-        await context.Database.EnsureCreatedAsync();
+        var env = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+        if (env.IsDevelopment())
+        {
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+        }
         
         return app;
     }

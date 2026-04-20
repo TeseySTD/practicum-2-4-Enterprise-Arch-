@@ -8,6 +8,7 @@ var sqlServer = builder.AddSqlServer("sqlserver")
 var usersDb = sqlServer.AddDatabase("usersdb");
 var productsDb = sqlServer.AddDatabase("productsdb");
 var customersDb = sqlServer.AddDatabase("customersdb");
+var reportingDb = sqlServer.AddDatabase("reportingdb");
 var papercut = builder.AddContainer("papercut", "jijiechen/papercut", "latest")
     .WithEndpoint("smtp", e =>
     {
@@ -26,11 +27,13 @@ builder.AddProject<Projects.Nimble_Modulith_Web>("webapi")
     .WithReference(usersDb)
     .WithReference(productsDb)
     .WithReference(customersDb)
+    .WithReference(reportingDb)
     .WithEnvironment("Papercut__Smtp__Url", papercut.GetEndpoint("smtp"))
     .WithEnvironment("Papercut__Ui__Url", papercut.GetEndpoint("ui"))
     .WaitFor(usersDb)
     .WaitFor(productsDb)
     .WaitFor(customersDb)
+    .WaitFor(reportingDb)
     .WaitFor(papercut);
 
 builder.Build().Run();

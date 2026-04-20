@@ -45,6 +45,24 @@ public class Confirm(
             return;
         }
 
+        var orderCreatedEvent = new Contracts.OrderCreatedEvent(
+            result.Value.Id,
+            result.Value.CustomerId,
+            custResult.Value.Email,
+            result.Value.OrderNumber,
+            result.Value.OrderDate,
+            result.Value.TotalAmount,
+            result.Value.Items.Select(i => new Contracts.OrderItemDetails(
+                i.Id,
+                i.ProductId,
+                i.ProductName,
+                i.Quantity,
+                i.UnitPrice,
+                i.TotalPrice
+            )).ToList()
+        );
+        await mediator.Publish(orderCreatedEvent, ct);
+        
         var itemsStr = string.Join("\n",
             result.Value.Items.Select(i =>
                 $"- {i.ProductName} x {i.Quantity} @ ${i.UnitPrice:F2} = ${i.TotalPrice:F2}"));

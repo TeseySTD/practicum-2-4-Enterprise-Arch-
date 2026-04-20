@@ -16,6 +16,11 @@ public class Order : EntityBase
     public void AddItem(OrderItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
+        
+        if (Status != OrderStatus.Pending)
+        {
+            throw new InvalidOperationException($"Cannot add items to order in {Status} status");
+        }
 
         // Check if an item with the same product already exists
         var existingItem = _items.FirstOrDefault(i => i.ProductId == item.ProductId);
@@ -34,6 +39,11 @@ public class Order : EntityBase
     public void RemoveItem(OrderItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
+        if (Status != OrderStatus.Pending)
+        {
+            throw new InvalidOperationException($"Cannot remove items from order in {Status} status");
+        }
+
         _items.Remove(item);
     }
 }

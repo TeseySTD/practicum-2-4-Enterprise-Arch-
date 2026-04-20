@@ -22,7 +22,7 @@ public class SmtpEmailSender(ILogger<SmtpEmailSender> logger, IOptions<EmailSett
             if (!string.IsNullOrEmpty(settings.Value.Username))
                 await client.AuthenticateAsync(settings.Value.Username, settings.Value.Password, ct);
             await client.SendAsync(mimeMessage, ct);
-            await client.DisconnectAsync(true, ct);
+            await client.DisconnectAsync(false, ct);
             logger.LogInformation("Email sent successfully to {To}", message.To);
         }
         catch (Exception ex)

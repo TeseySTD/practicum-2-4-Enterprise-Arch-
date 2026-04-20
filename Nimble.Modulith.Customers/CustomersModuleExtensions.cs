@@ -16,7 +16,7 @@ public static class CustomersModuleExtensions
         builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
         builder.Services.AddScoped(typeof(IReadRepository<>), typeof(EfReadRepository<>));
         builder.Services.AddScoped<Infrastructure.ICustomerAuthorizationService,
-                Infrastructure.CustomerAuthorizationService>();
+            Infrastructure.CustomerAuthorizationService>();
         return builder;
     }
 
@@ -24,7 +24,13 @@ public static class CustomersModuleExtensions
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<CustomersDbContext>();
-        await context.Database.MigrateAsync();
+        var env = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+        if (env.IsDevelopment())
+        {
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+        }
+
         return app;
     }
 }

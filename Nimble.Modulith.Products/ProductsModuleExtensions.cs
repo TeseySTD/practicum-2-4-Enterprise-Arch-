@@ -20,7 +20,14 @@ public static class ProductsModuleExtensions
     {
         using var scope = app.Services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ProductsDbContext>();
-        await context.Database.MigrateAsync();
+        
+        var env = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+        if (env.IsDevelopment())
+        {
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+        }
+
         return app;
     }
 }
