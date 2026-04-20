@@ -71,7 +71,7 @@ _Нижче наведені схеми архітектури на основі
 
 1.  Клонуйте репозиторій:
     ```bash
-    git clone hthttps://github.com/TeseySTD/practicum-2-4-Enterprise-Arch-
+    git clone https://github.com/TeseySTD/practicum-2-4-Enterprise-Arch-
     cd practicum-2-4-Enterprise-Arch
     ```
 2.  Виконайте збірку рішення:
